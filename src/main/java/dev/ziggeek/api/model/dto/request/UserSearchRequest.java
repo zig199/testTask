@@ -12,11 +12,8 @@ import java.time.LocalDate;
 @Setter
 public class UserSearchRequest {
 
-//    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dateOfBirth = null;
-    private Phone phone = null;
-    private String name = null;
-    private Email email = null;
-    private int page = 0;
-    private int pageSize = 10;
+    private LocalDate dateOfBirth;
+    private Phone phone;
+    private String name;
+    private Email email;
 }

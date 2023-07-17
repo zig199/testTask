@@ -16,5 +16,6 @@ import lombok.Data;
 @Embeddable
 public class Email {
 
+    @javax.validation.constraints.Email
     private String email;
 }

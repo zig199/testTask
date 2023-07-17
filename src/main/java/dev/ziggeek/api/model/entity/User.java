@@ -29,7 +29,6 @@ public class User {
     @EqualsAndHashCode.Include
     private String name;
 
-    @Column(columnDefinition = "DATE")
     @ToString.Include
     @EqualsAndHashCode.Include
     private LocalDate dateOfBirth;
@@ -44,28 +43,19 @@ public class User {
 
     private String password;
 
-    public void updateEmail(@NonNull String previous, @NonNull String current) {
-        if (removeEmail(previous)) addEmail(current);
-    }
-
-    public void updatePhone(@NonNull Phone previous, @NonNull Phone current) {
-        if (removePhone(previous)) addPhone(current);
-    }
 
 
-    public void addEmail(@NonNull String emailAddress) {
-        this.emails.add(Email.builder().email(emailAddress).build());
+    public void addEmail(@NonNull Email emailAddress) { this.emails.add(emailAddress); }
+    public void addPhone(@NonNull Phone phoneNumber) { this.phones.add(phoneNumber); }
+
+    public boolean removeEmail(@NonNull Email email) { return this.emails.remove(email);}
+    public boolean removePhone(@NonNull Phone phone) { return this.phones.remove(phone);}
+
+    public void updateEmail(@NonNull Email currentEmail, @NonNull Email newEmail) {
+        if (removeEmail(currentEmail)) addEmail(newEmail);
+    }
+    public void updatePhone(@NonNull Phone currentPhone, @NonNull Phone newPhone) {
+        if (removePhone(currentPhone)) addPhone(newPhone);
     }
 
-    public void addPhone(@NonNull Phone phoneNumber) {
-        this.phones.add(phoneNumber);
-    }
-
-    public boolean removeEmail(@NonNull String email) {
-        return this.emails.remove(email);
-    }
-
-    public boolean removePhone(@NonNull Phone phone) {
-        return this.phones.remove(phone);
-    }
 }

@@ -1,6 +1,7 @@
 package dev.ziggeek.api.repository;
 
 
+import java.util.List;
 import java.util.Optional;
 import dev.ziggeek.api.model.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,9 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     Optional<Account> findByUserId(Long userId);
+
+
+    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
+    @Override
+    List<Account> findAll();
 }

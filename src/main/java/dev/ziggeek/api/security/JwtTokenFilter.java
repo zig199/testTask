@@ -14,20 +14,16 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final AuthService authService;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
-        try {
-            authService.authenticate(request, response);
-            filterChain.doFilter(request, response);
-        } finally {
-            authService.clearCurrent();
-        }
+        authService.authenticate(request, response);
+        filterChain.doFilter(request, response);
     }
 }

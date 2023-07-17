@@ -16,17 +16,9 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long>, QuerydslPredicateExecutor<User> {
 
-
     Page<User> findAll(Predicate predicate, Pageable pageable);
 
     Optional<User> findByEmailsContaining(Email email);
-
-
-    @Query("select case when count(u) > 0 then true else false end from User u where :email in u.emails")
-    boolean existEmail(@Param("email") String email);
-
-//    @Query("select case when count(u) > 0 then true else false end from User u where :phone in u.phones")
-//    boolean existPhone(@Param("phone") String phone);
 
     boolean existsByPhonesIsContaining(Phone phone);
 

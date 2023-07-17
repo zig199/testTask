@@ -1,6 +1,6 @@
-INSERT INTO t_users (name, date_of_birth, password) VALUES ('Abubakar', '1999-08-20', 'kukuruza');
-INSERT INTO t_users (name, date_of_birth, password) VALUES ('Artur', '1994-12-31', 'arbuz');
-INSERT INTO t_users (name, date_of_birth, password) VALUES ('Bayden', '1851-08-01', 'FBR');
+INSERT INTO t_users (name, date_of_birth, password) VALUES ('Abubakar', '1999-08-20', md5('kukuruza'));
+INSERT INTO t_users (name, date_of_birth, password) VALUES ('Artur', '1994-12-31', md5('arbuz777777'));
+INSERT INTO t_users (name, date_of_birth, password) VALUES ('Bayden', '1851-08-01', md5('RUSSIANFederation'));
 
 
 INSERT INTO t_accounts (user_id, balance, initial_balance) VALUES (1, 1743, 1743);

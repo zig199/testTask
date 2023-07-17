@@ -14,7 +14,6 @@ public class PhoneRequest {
     @NotNull
     private Long userId;
 
-    @NotEmpty
-    @Email
+    @NotNull
     private Phone phone;
 }

@@ -3,6 +3,8 @@ package dev.ziggeek.api.model.dto.phone;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,9 +16,9 @@ public class PhoneUpdateRequest {
     @NotNull
     private Long userId;
 
-    @NotEmpty
+    @NotNull
     private Phone currentPhoneNumber;
 
-    @NotEmpty
+    @NotNull
     private Phone newPhoneNumber;
 }

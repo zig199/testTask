@@ -2,37 +2,38 @@ package dev.ziggeek.api.service;
 
 
 import dev.ziggeek.api.model.dto.email.Email;
-import dev.ziggeek.api.model.dto.phone.Phone;
-import dev.ziggeek.api.model.dto.request.UserSearchRequest;
-import dev.ziggeek.api.model.dto.respomse.UserResponse;
-import dev.ziggeek.api.model.entity.User;
-import dev.ziggeek.api.model.dto.request.LoginRequest;
 import dev.ziggeek.api.model.dto.email.EmailRequest;
 import dev.ziggeek.api.model.dto.email.EmailUpdateRequest;
+import dev.ziggeek.api.model.dto.phone.Phone;
 import dev.ziggeek.api.model.dto.phone.PhoneRequest;
 import dev.ziggeek.api.model.dto.phone.PhoneUpdateRequest;
+import dev.ziggeek.api.model.dto.request.UserSearchRequest;
+import dev.ziggeek.api.model.dto.respomse.UserResponse;
+import dev.ziggeek.api.model.entity.QUser;
+import dev.ziggeek.api.model.entity.User;
 import dev.ziggeek.api.model.mapper.UserMapper;
 import dev.ziggeek.api.model.querydsl.QPredicates;
 import dev.ziggeek.api.repository.UserRepository;
-
-import javax.validation.Valid;
-
-import dev.ziggeek.api.model.entity.QUser;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
-import java.util.stream.Collectors;
+import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Slf4j
 @Service
 @Validated
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
@@ -40,6 +41,13 @@ public class UserService {
 
 
 //    E-mails methods
+
+    public void addUserEmail(@NonNull @Valid EmailRequest request) {
+        User user = findById(request.getUserId());
+        user.addEmail(request.getEmail());
+
+        userRepository.save(user);
+    }
 
 
     public void removeUserEmail(@NonNull @Valid EmailRequest request) {
@@ -50,19 +58,11 @@ public class UserService {
     }
 
 
-    public void addUserEmail(@NonNull @Valid EmailRequest request) {
-        User user = findById(request.getUserId());
-        user.addEmail(request.getEmail());
-
-        userRepository.save(user);
-    }
-
-
     public void updateUserEmail(@NonNull @Valid EmailUpdateRequest request) {
-        var currentEmail = request.getCurrentEmail();
-        var newEmail = request.getNewEmail();
+        Email currentEmail = request.getCurrentEmail();
+        Email newEmail = request.getNewEmail();
 
-        if (currentEmail.equals(newEmail) || userRepository.existEmail(newEmail)) {
+        if (currentEmail.equals(newEmail) || userRepository.existsByEmailsIsContaining(newEmail)) {
             log.warn("*** E-mail {} уже используется пользователем", request.getNewEmail());
             throw new RuntimeException("*** Ошибка!!! Отказано в изменении почты.");
         }
@@ -92,6 +92,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+
     public void updateUserPhone(@NonNull @Valid PhoneUpdateRequest request) {
         Phone currentPhoneNumber = request.getCurrentPhoneNumber();
         Phone newPhoneNumber = request.getNewPhoneNumber();
@@ -108,7 +109,6 @@ public class UserService {
     }
 
 
-
 //  Others methods
 
 
@@ -117,8 +117,7 @@ public class UserService {
     }
 
 
-    public List<UserResponse> search(UserSearchRequest request) {
-        var pageable = PageRequest.of(request.getPage(), request.getPageSize());
+    public List<UserResponse> search(UserSearchRequest request, Integer page, Integer pageSize) {
         var predicate = QPredicates.builder()
                 .add(request.getName(), QUser.user.name::startsWith)
                 .add(request.getDateOfBirth(), QUser.user.dateOfBirth::after)
@@ -127,7 +126,12 @@ public class UserService {
                 .buildOr();
 
         return userRepository
-                .findAll(predicate, pageable)
+                .findAll(predicate,
+                        PageRequest.of(
+                                Optional.ofNullable(page).orElse(0),
+                                Optional.ofNullable(pageSize).orElse(10)
+                        )
+                )
                 .getContent()
                 .stream()
                 .map(userMapper::toBasicResp)
@@ -135,17 +139,8 @@ public class UserService {
     }
 
 
-    public User login(@NonNull @Valid LoginRequest request) {
-        var email = Email.builder().email(request.getEmail()).build();
-        var password = request.getPassword();
-
-        User user = userRepository.findByEmailsContaining(email)
-                .orElseThrow(() -> new RuntimeException("*** Ошибка!!! Пользователь с e-mail не найден."));
-
-        if (!user.getPassword().equals(password))
-            throw new RuntimeException("*** Неверный пароль!");
-
-        return user;
+    public User findByEmail(Email email) {
+        return userRepository.findByEmailsContaining(email)
+                .orElseThrow(() -> new UsernameNotFoundException("*** Ошибка!!! Пользователь с e-mail не найден."));
     }
-
 }
